@@ -1,71 +1,14 @@
-require "pundit"
-require "pry"
-require "active_support/core_ext"
-require "active_model/naming"
-
-class PostPolicy < Struct.new(:user, :post)
-  def update?
-    post.user == user
-  end
-  def destroy?
-    false
-  end
-  def show?
-    true
-  end
-  def publish?(params={})
-    params[:editor]
-  end
-end
-class PostPolicy::Scope < Struct.new(:user, :scope)
-  def resolve
-    scope.published
-  end
-end
-class Post < Struct.new(:user)
-  def self.published
-    :published
-  end
-end
-
-class CommentPolicy < Struct.new(:user, :comment); end
-class CommentPolicy::Scope < Struct.new(:user, :scope)
-  def resolve
-    scope
-  end
-end
-class Comment; extend ActiveModel::Naming; end
-
-class Article; end
-
-class BlogPolicy < Struct.new(:user, :blog); end
-class Blog; end
-class ArtificialBlog < Blog
-  def self.policy_class
-    BlogPolicy
-  end
-end
-class ArticleTag
-  def self.policy_class
-    Struct.new(:user, :tag) do
-      def show?
-        true
-      end
-      def destroy?
-        false
-      end
-    end
-  end
-end
+require "spec_helper"
 
 describe Pundit do
   let(:user) { double }
   let(:post) { Post.new(user) }
   let(:comment) { Comment.new }
   let(:article) { Article.new }
-  let(:controller) { double(:current_user => user, :params => { :action => "update" }).tap { |c| c.extend(Pundit) } }
+  let(:controller) { Controller.new(user, { :action => 'update' }) }
   let(:artificial_blog) { ArtificialBlog.new }
   let(:article_tag) { ArticleTag.new }
+  let(:nested_controller) { Admin::Controller.new }
 
   describe ".policy_scope" do
     it "returns an instantiated policy scope given a plain model class" do
@@ -205,7 +148,7 @@ describe Pundit do
     end
 
     it "raises an exception when policy_scope is not used" do
-      expect { controller.verify_policy_scoped }.to raise_error(Pundit::AuthorizationNotPerformedError)
+      expect { controller.verify_policy_scoped }.to raise_error(Pundit::PolicyScopingNotPerformedError)
     end
   end
 
@@ -258,6 +201,14 @@ describe Pundit do
 
     it "throws an exception if the given policy can't be found" do
       expect { controller.policy(article) }.to raise_error(Pundit::NotDefinedError)
+    end
+
+    it "looks up the policy class based on the caller's namespace" do
+      expect(nested_controller.policy(comment).class).to eq Admin::CommentPolicy
+    end
+
+    it "falls back to the non-namespaced policy class if there isn't a namespaced one" do
+      expect(nested_controller.policy(post).class).to eq PostPolicy
     end
 
     it "allows policy to be injected" do
