@@ -13,6 +13,9 @@ class PostPolicy < Struct.new(:user, :post)
   def show?
     true
   end
+  def publish?(params={})
+    params[:editor]
+  end
 end
 class PostPolicy::Scope < Struct.new(:user, :scope)
   def resolve
