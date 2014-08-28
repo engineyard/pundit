@@ -47,9 +47,9 @@ end
 
 RSpec.configure do |config|
   filter = if RSpec::Version::STRING < "3.0.0"
-             { :file_path => /spec\/policies/ }
-           else
              {:example_group => { :file_path => /spec\/policies/ } }
+           else
+             { :file_path => /spec\/policies/ }
            end
   config.include Pundit::RSpec::PolicyExampleGroup, {:type => :policy}.merge(filter)
 end
