@@ -62,7 +62,7 @@ module Pundit
     raise PolicyScopingNotPerformedError unless @_pundit_policy_scoped
   end
 
-  def authorize(record, query=nil)
+  def authorize(record, query=nil, *args)
     query ||= params[:action].to_s + "?"
     query = query.to_sym
 
@@ -71,9 +71,9 @@ module Pundit
     policy = policy(record)
 
     authorized = if policy.respond_to?(:authorize)
-                   policy.authorize(query)
+                   policy.authorize(query, *args)
                  else
-                   policy.public_send(query)
+                   policy.public_send(query, *args)
                  end
 
     unless authorized
