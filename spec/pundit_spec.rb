@@ -1,13 +1,13 @@
 require "spec_helper"
 
 describe Pundit do
-  let(:user) { double }
-  let(:post) { Post.new(user) }
-  let(:comment) { Comment.new }
-  let(:article) { Article.new }
-  let(:controller) { Controller.new(user, { :action => 'update' }) }
+  let(:article)         { Article.new }
+  let(:article_tag)     { ArticleTag.new }
   let(:artificial_blog) { ArtificialBlog.new }
-  let(:article_tag) { ArticleTag.new }
+  let(:comment)         { Comment.new }
+  let(:controller)      { Controller.new(user, { :action => 'update' }) }
+  let(:post)            { Post.new(user) }
+  let(:user)            { double }
 
   describe ".policy_scope" do
     it "returns an instantiated policy scope given a plain model class" do
@@ -166,6 +166,11 @@ describe Pundit do
   end
 
   describe "#authorize" do
+    it "allows the #authorize shim on the policy" do
+      expect(controller.authorize(artificial_blog, :show?)).to eq(true)
+      expect { controller.authorize(artificial_blog, :update?) }.to raise_error(Pundit::NotAuthorizedError)
+    end
+
     it "infers the policy name and authorized based on it" do
       expect(controller.authorize(post)).to be_truthy
     end

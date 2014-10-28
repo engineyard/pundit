@@ -63,7 +63,12 @@ class Comment; extend ActiveModel::Naming; end
 
 class Article; end
 
-class BlogPolicy < Struct.new(:user, :blog); end
+class BlogPolicy < Struct.new(:user, :blog)
+  def authorize(action)
+    action == :show?
+  end
+end
+
 class Blog; end
 class ArtificialBlog < Blog
   def self.policy_class
