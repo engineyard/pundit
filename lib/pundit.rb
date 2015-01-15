@@ -59,11 +59,13 @@ module Pundit
     raise AuthorizationNotPerformedError unless @_policy_scoped
   end
 
-  def authorize(record, query=nil)
+  def authorize(record, *args)
+    options = (args.last.is_a?(Hash) && args.pop) || {}
+    query = args.first
     query ||= params[:action].to_s + "?"
     @_policy_authorized = true
 
-    policy = policy(record)
+    policy = options[:policy] || policy(record)
     unless policy.public_send(query)
       error = NotAuthorizedError.new("not allowed to #{query} this #{record}")
       error.query, error.record, error.policy = query, record, policy
