@@ -186,6 +186,12 @@ describe Pundit do
       expect { controller.authorize(post, :destroy?) }.to raise_error(Pundit::NotAuthorizedError)
     end
 
+    it "can be given a query and arguments" do
+      expect(controller.authorize(post, :publish?, "editor")).to eq(true)
+      expect { controller.authorize(post, :publish?, "author") }.to raise_error(Pundit::NotAuthorizedError)
+      expect { controller.authorize(post, :publish?) }.to raise_error(Pundit::NotAuthorizedError)
+    end
+
     it "works with anonymous class policies" do
       expect(controller.authorize(article_tag, :show?)).to be_truthy
       expect { controller.authorize(article_tag, :destroy?) }.to raise_error(Pundit::NotAuthorizedError)

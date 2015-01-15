@@ -64,7 +64,7 @@ module Pundit
 
   def authorize(record, *args)
     options = (args.last.is_a?(Hash) && args.pop) || {}
-    query = args.first
+    query = args.shift
     query ||= params[:action].to_s + "?"
     query = query.to_sym
 
@@ -73,9 +73,9 @@ module Pundit
     policy = options[:policy] || policy(record)
 
     authorized = if policy.respond_to?(:authorize)
-                   policy.authorize(query)
+                   policy.authorize(query, *args)
                  else
-                   policy.public_send(query)
+                   policy.public_send(query, *args)
                  end
 
     unless authorized

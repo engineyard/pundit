@@ -38,6 +38,9 @@ class PostPolicy < Struct.new(:user, :post)
   def destroy?
     false
   end
+  def publish?(editor=nil)
+    editor == "editor"
+  end
   def show?
     true
   end
