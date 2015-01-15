@@ -1,3 +1,3 @@
 module Pundit
-  VERSION = "0.3.1.lanej3"
+  VERSION = "0.3.1.lanej4"
 end
