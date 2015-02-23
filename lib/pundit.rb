@@ -70,7 +70,11 @@ module Pundit
 
     @_pundit_policy_authorized = true
 
-    policy = options[:policy] || policy(record)
+    policy = if explicit_policy = options[:policy]
+               explicit_policy.new(pundit_user, record)
+             else
+               policy(record)
+             end
 
     authorized = if policy.respond_to?(:authorize)
                    policy.authorize(query, *args)
@@ -99,7 +103,7 @@ module Pundit
     when NilClass then
       Pundit.policy_scope!(pundit_user, scope)
     else
-      policy_scopes[scope]
+      policy
     end
   end
 

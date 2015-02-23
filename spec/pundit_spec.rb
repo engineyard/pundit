@@ -176,7 +176,7 @@ describe Pundit do
     end
 
     it "allows an explicit policy class to be used" do
-      policy = double(unique?: true, update?: false)
+      policy = double("explicit policy", new: double(unique?: true, update?: false))
       expect(controller.authorize(post, :unique?, policy: policy)).to be_truthy
       expect { controller.authorize(post, :update?, policy: policy) }.to raise_error(Pundit::NotAuthorizedError)
     end
