@@ -88,9 +88,19 @@ module Pundit
     true
   end
 
-  def policy_scope(scope)
+  def policy_scope(scope, options={})
     @_pundit_policy_scoped = true
-    policy_scopes[scope] ||= Pundit.policy_scope!(pundit_user, scope)
+
+    policy = options[:policy] || policy_scopes[scope]
+
+    case policy
+    when Class then
+      policy.new(pundit_user, scope).resolve
+    when NilClass then
+      Pundit.policy_scope!(pundit_user, scope)
+    else
+      policy_scopes[scope]
+    end
   end
 
   def policy(record)

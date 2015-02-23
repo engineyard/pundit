@@ -250,5 +250,11 @@ describe Pundit do
 
       expect(controller.policy_scope(Post)).to eq new_scope
     end
+
+    it "allows policy to be passed explicitly" do
+      expect_any_instance_of(CommentPolicy).to receive(:resolve)
+
+      controller.policy_scope(Post, policy: CommentPolicy)
+    end
   end
 end
