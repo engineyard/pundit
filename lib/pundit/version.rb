@@ -1,3 +1,3 @@
 module Pundit
-  VERSION = "1.0.2.ey1"
+  VERSION = "1.0.2.ey2"
 end
