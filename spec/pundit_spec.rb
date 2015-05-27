@@ -247,8 +247,25 @@ describe Pundit do
   end
 
   describe "#authorize" do
+    it "allows the #authorize shim on the policy" do
+      expect(controller.authorize(artificial_blog, :show?)).to eq(true)
+      expect { controller.authorize(artificial_blog, :update?) }.to raise_error(Pundit::NotAuthorizedError)
+    end
+
     it "infers the policy name and authorizes based on it" do
       expect(controller.authorize(post)).to be_truthy
+    end
+
+    it "allows an explicit policy class to be used" do
+      policy = double("explicit policy", unique?: true, update?: false)
+      expect(controller.authorize(post, :unique?, policy: policy)).to be_truthy
+      expect { controller.authorize(post, :update?, policy: policy) }.to raise_error(Pundit::NotAuthorizedError)
+    end
+
+    it "can be given a query and arguments" do
+      expect(controller.authorize(post, :publish?, "editor")).to eq(true)
+      expect { controller.authorize(post, :publish?, "author") }.to raise_error(Pundit::NotAuthorizedError)
+      expect { controller.authorize(post, :publish?) }.to raise_error(Pundit::NotAuthorizedError)
     end
 
     it "can be given a different permission to check" do
