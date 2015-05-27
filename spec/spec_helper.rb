@@ -35,6 +35,9 @@ class PostPolicy < Struct.new(:user, :post)
   def show?
     true
   end
+  def publish?(author=nil)
+    author == "editor"
+  end
   def permitted_attributes
     if post.user == user
       [:title, :votes]
@@ -73,7 +76,11 @@ end
 
 class Article; end
 
-class BlogPolicy < Struct.new(:user, :blog); end
+class BlogPolicy < Struct.new(:user, :blog)
+  def authorize(action, *args)
+    action == :show?
+  end
+end
 class Blog; end
 class ArtificialBlog < Blog
   def self.policy_class
