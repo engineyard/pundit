@@ -44,13 +44,15 @@ module Pundit
       true
     end
 
-    def policy_scope(user, scope)
-      policy_scope = PolicyFinder.new(scope).scope
+    def policy_scope(user, scope, options={})
+      policy_scope = options[:scope] || PolicyFinder.new(scope).scope
       policy_scope.new(user, scope).resolve if policy_scope
     end
 
-    def policy_scope!(user, scope)
-      PolicyFinder.new(scope).scope!.new(user, scope).resolve
+    def policy_scope!(user, scope, options={})
+      policy_scope = options[:scope] || PolicyFinder.new(scope).scope!
+
+      policy_scope.new(user, scope).resolve
     end
 
     def policy(user, record)
@@ -64,8 +66,8 @@ module Pundit
   end
 
   module Helper
-    def policy_scope(scope)
-      pundit_policy_scope(scope)
+    def policy_scope(scope, options={})
+      pundit_policy_scope(scope, options)
     end
   end
 
@@ -128,9 +130,9 @@ module Pundit
     @_pundit_policy_scoped = true
   end
 
-  def policy_scope(scope)
+  def policy_scope(scope, options={})
     @_pundit_policy_scoped = true
-    pundit_policy_scope(scope)
+    pundit_policy_scope(scope, options)
   end
 
   def policy(record)
@@ -154,9 +156,14 @@ module Pundit
     current_user
   end
 
-private
+  private
 
-  def pundit_policy_scope(scope)
-    policy_scopes[scope] ||= Pundit.policy_scope!(pundit_user, scope)
+  def pundit_policy_scope(scope, options={})
+    # don't cache when overrides are present
+    if options.any?
+      Pundit.policy_scope!(pundit_user, scope, options)
+    else
+      policy_scopes[scope] ||= Pundit.policy_scope!(pundit_user, scope)
+    end
   end
 end

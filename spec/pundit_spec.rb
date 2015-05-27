@@ -334,6 +334,12 @@ describe Pundit do
 
       expect(controller.policy_scope(Post)).to eq new_scope
     end
+
+    it "allows scope to be passed explicitly" do
+      expect_any_instance_of(CommentPolicy::Scope).to receive(:resolve)
+
+      controller.policy_scope(Post, scope: CommentPolicy::Scope)
+    end
   end
 
   describe "#permitted_attributes" do
